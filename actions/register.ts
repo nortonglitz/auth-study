@@ -4,7 +4,7 @@ import * as z from "zod"
 import { db } from "@/lib/db"
 
 import { RegisterSchema } from "@/schemas"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 
 interface RegisterReturn {
     type: "error" | "success"
