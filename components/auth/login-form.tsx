@@ -1,7 +1,8 @@
 "use client"
 
 import * as z from "zod"
-
+import { login } from "@/actions/login"
+import { useTransition, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -21,6 +22,10 @@ import { CardWrapper } from "./card-wrapper"
 import { FormFeedback } from "../form-feedback"
 
 export const LoginForm = () => {
+    const [feedbackType, setFeedbackType] = useState<"success" | "error">("success")
+    const [feedbackMessage, setFeedbackMessage] = useState('')
+
+    const [isPending, startTransition] = useTransition()
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
@@ -31,7 +36,11 @@ export const LoginForm = () => {
     })
 
     const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-        console.log(values)
+        startTransition(async () => {
+            const { type, message } = await login(values)
+            setFeedbackMessage(message)
+            setFeedbackType(type)
+        })
     }
 
 
@@ -56,6 +65,7 @@ export const LoginForm = () => {
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
                                         <Input
+                                            disabled={isPending}
                                             {...field}
                                             placeholder="example@domain.com"
                                             type="email"
@@ -73,6 +83,7 @@ export const LoginForm = () => {
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <Input
+                                            disabled={isPending}
                                             {...field}
                                             type="password"
                                         />
@@ -82,8 +93,12 @@ export const LoginForm = () => {
                             ))}
                         />
                     </div>
-                    <FormFeedback />
+                    <FormFeedback
+                        type={feedbackType}
+                        message={feedbackMessage}
+                    />
                     <Button
+                        disabled={isPending}
                         type="submit"
                         className="w-full"
                     >
