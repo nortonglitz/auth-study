@@ -1,12 +1,12 @@
 import bcrypt from "bcryptjs"
 import type { NextAuthConfig } from "next-auth"
-import credentials from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials"
 
 import { LoginSchema } from "@/schemas"
 import { db } from "@/lib/db"
 
 export default {
-    providers: [credentials({
+    providers: [CredentialsProvider({
         async authorize(credentials) {
             const validatedFields = await LoginSchema.safeParseAsync(credentials)
 
