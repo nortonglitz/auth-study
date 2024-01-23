@@ -7,7 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -18,6 +18,12 @@ const config = {
       },
     },
     extend: {
+      backgroundColor: {
+        "sky-gradient": "[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800"
+      },
+      fontFamily: {
+        "poppins": "var(--font-poppins)"
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
