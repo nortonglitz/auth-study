@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form"
 
 import { CardWrapper } from "./card-wrapper"
-import { FormFeedback } from "../form-error"
+import { FormFeedback } from "../form-feedback"
 
 export const LoginForm = () => {
 
