@@ -9,7 +9,7 @@ import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
 
 interface RegisterReturn {
-    type: "error" | "success"
+    type: "error" | "success" | "warning"
     message: string
 }
 
@@ -45,9 +45,9 @@ export const register = async (values: z.infer<typeof RegisterSchema>): Promise<
             }
         })
 
-        const { newToken, verificationToken: { token } } = await generateVerificationToken(email)
+        const { isNewToken, verificationToken: { token } } = await generateVerificationToken(email)
 
-        if (newToken) {
+        if (isNewToken) {
             sendVerificationEmail(email, token)
         }
 

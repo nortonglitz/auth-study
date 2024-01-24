@@ -22,7 +22,7 @@ import { CardWrapper } from "./card-wrapper"
 import { FormFeedback } from "../form-feedback"
 
 export const RegisterForm = () => {
-    const [feedbackType, setFeedbackType] = useState<"success" | "error">("success")
+    const [feedbackType, setFeedbackType] = useState<"success" | "error" | "warning">("success")
     const [feedbackMessage, setFeedbackMessage] = useState('')
 
     const [isPending, startTransition] = useTransition()

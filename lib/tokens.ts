@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid"
  * Generate a new token to validate an e-mail, or return old token if has not expired.
  * __Verify if the user has e-mail verified before calling this function.__
  * @param email E-mail needed to be verified.
- * @returns Token generated
+ * @returns Token generated and a boolean if it was genereted a new one or not.
  */
 
 export const generateVerificationToken = async (email: string) => {
@@ -29,7 +29,7 @@ export const generateVerificationToken = async (email: string) => {
         })
 
         return {
-            newToken: true,
+            isNewToken: true,
             verificationToken
         }
     }
@@ -38,7 +38,7 @@ export const generateVerificationToken = async (email: string) => {
 
     if (tokenExists.expires_at.getTime() > today.getTime()) {
         return {
-            newToken: false,
+            isNewToken: false,
             verificationToken: tokenExists
         }
     }
@@ -56,7 +56,7 @@ export const generateVerificationToken = async (email: string) => {
     })
 
     return {
-        newToken: true,
+        isNewToken: true,
         verificationToken: updatedVerficationToken
     }
 

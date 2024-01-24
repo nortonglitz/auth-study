@@ -12,7 +12,7 @@ import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
 
 interface LoginReturn {
-    type: "error" | "success"
+    type: "error" | "success" | "warning"
     message: string
 }
 
@@ -40,9 +40,9 @@ export const login = async (values: z.infer<typeof LoginSchema>): Promise<LoginR
     }
 
     if (!userExists.emailVerified) {
-        const { newToken, verificationToken: { token } } = await generateVerificationToken(userExists.email)
+        const { isNewToken, verificationToken: { token } } = await generateVerificationToken(userExists.email)
 
-        if (newToken) {
+        if (isNewToken) {
             await sendVerificationEmail(email, token)
 
             return {
@@ -52,7 +52,7 @@ export const login = async (values: z.infer<typeof LoginSchema>): Promise<LoginR
         }
 
         return {
-            type: "success",
+            type: "warning",
             message: "Please verify your e-mail inbox."
         }
     }

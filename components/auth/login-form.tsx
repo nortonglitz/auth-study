@@ -27,7 +27,7 @@ export const LoginForm = () => {
     const searchParams = useSearchParams()
     const urlError = searchParams.get("error")
 
-    const [feedbackType, setFeedbackType] = useState<"success" | "error">("success")
+    const [feedbackType, setFeedbackType] = useState<"success" | "error" | "warning">("success")
     const [feedbackMessage, setFeedbackMessage] = useState('')
 
     const [isPending, startTransition] = useTransition()
