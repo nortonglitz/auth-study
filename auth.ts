@@ -4,9 +4,21 @@ import { db } from "@/lib/db"
 import authConfig from "./auth.config"
 import { JWT } from "next-auth/jwt"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     adapter: PrismaAdapter(db),
     session: { strategy: 'jwt' },
+    pages: {
+        signIn: "/auth/login",
+        error: "/auth/error"
+    },
+    events: {
+        async linkAccount({ user }) {
+            await db.user.update({
+                where: { id: user.id },
+                data: { emailVerified: new Date() }
+            })
+        }
+    },
     callbacks: {
         async session({ session, token }: { session: Session, token?: JWT }) {
             if (token && token.sub && session.user && token.role) {

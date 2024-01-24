@@ -1,11 +1,12 @@
 "use client"
 
 import * as z from "zod"
-import { login } from "@/actions/login"
-import { useTransition, useState } from "react"
+import { useTransition, useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useSearchParams } from "next/navigation"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import { login } from "@/actions/login"
 import { LoginSchema } from "@/schemas"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -22,10 +23,21 @@ import { CardWrapper } from "./card-wrapper"
 import { FormFeedback } from "../form-feedback"
 
 export const LoginForm = () => {
+
+    const searchParams = useSearchParams()
+    const urlError = searchParams.get("error")
+
     const [feedbackType, setFeedbackType] = useState<"success" | "error">("success")
     const [feedbackMessage, setFeedbackMessage] = useState('')
 
     const [isPending, startTransition] = useTransition()
+
+    useEffect(() => {
+        if (urlError === "OAuthAccountNotLinked") {
+            setFeedbackType("error")
+            setFeedbackMessage("Email already in use by another provider.")
+        }
+    }, [urlError])
 
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
