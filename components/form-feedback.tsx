@@ -1,14 +1,20 @@
 import { ExclamationTriangleIcon, CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons"
 
-interface FormFeedbackProps {
+export type FeedbackParamsProps = {
     message?: string
-    type: "success" | "error" | "warning"
+    type?: "success" | "error" | "warning"
+}
+
+interface FeedbackProps {
+    feedback: FeedbackParamsProps
 }
 
 export const FormFeedback = ({
-    message,
-    type
-}: FormFeedbackProps) => {
+    feedback: {
+        message,
+        type
+    }
+}: FeedbackProps) => {
     if (!message) return null
 
     return (

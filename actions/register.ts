@@ -7,13 +7,9 @@ import { RegisterSchema } from "@/schemas"
 import bcrypt from "bcryptjs"
 import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
+import { FeedbackParamsProps } from "@/components/form-feedback"
 
-interface RegisterReturn {
-    type: "error" | "success" | "warning"
-    message: string
-}
-
-export const register = async (values: z.infer<typeof RegisterSchema>): Promise<RegisterReturn> => {
+export const register = async (values: z.infer<typeof RegisterSchema>): Promise<FeedbackParamsProps> => {
     try {
         const validatedFields = await RegisterSchema.safeParseAsync(values)
 

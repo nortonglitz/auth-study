@@ -19,11 +19,10 @@ import {
 } from "@/components/ui/form"
 
 import { CardWrapper } from "./card-wrapper"
-import { FormFeedback } from "../form-feedback"
+import { FormFeedback, FeedbackParamsProps } from "../form-feedback"
 
 export const RegisterForm = () => {
-    const [feedbackType, setFeedbackType] = useState<"success" | "error" | "warning">("success")
-    const [feedbackMessage, setFeedbackMessage] = useState('')
+    const [feedback, setFeedback] = useState<FeedbackParamsProps>({})
 
     const [isPending, startTransition] = useTransition()
 
@@ -39,8 +38,10 @@ export const RegisterForm = () => {
     const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
         startTransition(async () => {
             const { type, message } = await register(values)
-            setFeedbackMessage(message)
-            setFeedbackType(type)
+            setFeedback({
+                message,
+                type
+            })
         })
     }
 
@@ -112,8 +113,7 @@ export const RegisterForm = () => {
                         />
                     </div>
                     <FormFeedback
-                        type={feedbackType}
-                        message={feedbackMessage}
+                        feedback={feedback}
                     />
                     <Button
                         disabled={isPending}

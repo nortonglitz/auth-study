@@ -20,22 +20,23 @@ import {
 } from "@/components/ui/form"
 
 import { CardWrapper } from "./card-wrapper"
-import { FormFeedback } from "../form-feedback"
+import { FormFeedback, FeedbackParamsProps } from "../form-feedback"
 
 export const LoginForm = () => {
 
     const searchParams = useSearchParams()
     const urlError = searchParams.get("error")
 
-    const [feedbackType, setFeedbackType] = useState<"success" | "error" | "warning">("success")
-    const [feedbackMessage, setFeedbackMessage] = useState('')
+    const [feedback, setFeedback] = useState<FeedbackParamsProps>({})
 
     const [isPending, startTransition] = useTransition()
 
     useEffect(() => {
         if (urlError === "OAuthAccountNotLinked") {
-            setFeedbackType("error")
-            setFeedbackMessage("Email already in use by another provider.")
+            setFeedback({
+                type: "error",
+                message: "Email already in use by another provider."
+            })
         }
     }, [urlError])
 
@@ -50,8 +51,10 @@ export const LoginForm = () => {
     const onSubmit = (values: z.infer<typeof LoginSchema>) => {
         startTransition(async () => {
             const { type, message } = await login(values)
-            setFeedbackMessage(message)
-            setFeedbackType(type)
+            setFeedback({
+                type,
+                message
+            })
         })
     }
 
@@ -106,8 +109,7 @@ export const LoginForm = () => {
                         />
                     </div>
                     <FormFeedback
-                        type={feedbackType}
-                        message={feedbackMessage}
+                        feedback={feedback}
                     />
                     <Button
                         disabled={isPending}

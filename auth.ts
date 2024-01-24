@@ -24,7 +24,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             if (!account) return false
 
             // Allow OAuth without email verification
-            if (account.provider === "credentials") {
+            if (account.type === "credentials") {
                 const userExists = await db.user.findUnique({
                     where: { id: user.id }
                 })
