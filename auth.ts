@@ -1,4 +1,4 @@
-import NextAuth, { Session } from "next-auth"
+import NextAuth, { AuthError, Session } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/lib/db"
 import authConfig from "./auth.config"
@@ -20,6 +20,28 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
         }
     },
     callbacks: {
+        async signIn({ user, account }) {
+            if (!account) return false
+
+            // Allow OAuth without email verification
+            if (account.provider === "credentials") {
+                const userExists = await db.user.findUnique({
+                    where: { id: user.id }
+                })
+
+                // Prevent sign in without email verification
+                if (!userExists || !userExists.emailVerified) {
+                    const error = new AuthError("E-mail not verified.")
+                    error.name = "CredentialsEmailNotVerified"
+                    error.type = "AuthorizedCallbackError"
+
+                    throw error
+                }
+
+            }
+
+            return true
+        },
         async session({ session, token }: { session: Session, token?: JWT }) {
             if (token && token.sub && session.user && token.role) {
                 session.user.id = token.sub

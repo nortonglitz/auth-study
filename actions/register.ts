@@ -5,6 +5,8 @@ import { db } from "@/lib/db"
 
 import { RegisterSchema } from "@/schemas"
 import bcrypt from "bcryptjs"
+import { generateVerificationToken } from "@/lib/tokens"
+import { sendVerificationEmail } from "@/lib/mail"
 
 interface RegisterReturn {
     type: "error" | "success"
@@ -43,12 +45,15 @@ export const register = async (values: z.infer<typeof RegisterSchema>): Promise<
             }
         })
 
-        //TODO: Send verification token email
+        const { newToken, verificationToken: { token } } = await generateVerificationToken(email)
 
+        if (newToken) {
+            sendVerificationEmail(email, token)
+        }
 
         return {
             type: "success",
-            message: "User created."
+            message: "Confirmation email sent."
         }
 
     } catch (err: any) {
