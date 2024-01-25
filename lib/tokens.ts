@@ -2,6 +2,66 @@ import { db } from "./db"
 import { v4 as uuidv4 } from "uuid"
 
 /**
+ * Generate a new token to reset password, or return old token if has not expired.
+ * @param email E-mail needed to reset password.
+ * @returns Token generated and a boolean if it was genereted a new one or not.
+ */
+
+export const generatePasswordResetToken = async (email: string) => {
+    const today = new Date()
+    const expiresAt = new Date(today.getTime() + 3600 * 1000)
+    const token = uuidv4()
+
+    const tokenExists = await db.passwordResetToken.findFirst({
+        where: { email: email }
+    })
+
+    // Create a new token if does not exists
+
+    if (!tokenExists) {
+        const passwordResetToken = await db.passwordResetToken.create({
+            data: {
+                email,
+                token,
+                expires_at: expiresAt
+            }
+        })
+
+        return {
+            isNewToken: true,
+            passwordResetToken
+        }
+    }
+
+    // Check if has not expired yet
+
+    if (tokenExists.expires_at.getTime() > today.getTime()) {
+        return {
+            isNewToken: false,
+            passwordResetToken: tokenExists
+        }
+    }
+
+    // If has expired, update using new expires date and token
+
+    const updatedVerficationToken = await db.passwordResetToken.update({
+        where: {
+            id: tokenExists.id
+        },
+        data: {
+            expires_at: expiresAt,
+            token: token
+        }
+    })
+
+    return {
+        isNewToken: true,
+        passwordResetToken: updatedVerficationToken
+    }
+
+}
+
+/**
  * Generate a new token to validate an e-mail, or return old token if has not expired.
  * __Verify if the user has e-mail verified before calling this function.__
  * @param email E-mail needed to be verified.

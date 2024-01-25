@@ -21,6 +21,7 @@ import {
 
 import { CardWrapper } from "./card-wrapper"
 import { FormFeedback, FeedbackParamsProps } from "../form-feedback"
+import Link from "next/link"
 
 export const LoginForm = () => {
 
@@ -107,6 +108,18 @@ export const LoginForm = () => {
                                 </FormItem>
                             ))}
                         />
+                        <Button
+                            size="sm"
+                            variant="link"
+                            asChild
+                            className="
+                                px-0 font-normal
+                            "
+                        >
+                            <Link href="/auth/reset">
+                                Forgot password?
+                            </Link>
+                        </Button>
                     </div>
                     <FormFeedback
                         feedback={feedback}
