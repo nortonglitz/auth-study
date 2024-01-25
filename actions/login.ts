@@ -8,12 +8,17 @@ import { signIn } from "@/auth"
 import { LoginSchema } from "@/schemas"
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { AuthError } from "next-auth"
-import { generateVerificationToken } from "@/lib/tokens"
-import { sendVerificationEmail } from "@/lib/mail"
+import { generateVerificationToken, generateTwoFactorToken } from "@/lib/tokens"
+import { sendVerificationEmail, sendTwoFactorTokenEmail } from "@/lib/mail"
 import { FeedbackParamsProps } from "@/components/form-feedback"
 
-export const login = async (values: z.infer<typeof LoginSchema>): Promise<FeedbackParamsProps> => {
+type LoginReturnProps = {
+    twoFactor?: boolean
+} & FeedbackParamsProps
+
+export const login = async (values: z.infer<typeof LoginSchema>): Promise<LoginReturnProps> => {
     const validatedFields = await LoginSchema.safeParseAsync(values)
+    const now = new Date()
 
     if (!validatedFields.success) {
         return {
@@ -22,7 +27,7 @@ export const login = async (values: z.infer<typeof LoginSchema>): Promise<Feedba
         }
     }
 
-    const { email, password } = validatedFields.data
+    const { email, password, code } = validatedFields.data
 
     const userExists = await db.user.findFirst({
         where: { email: email }
@@ -34,6 +39,8 @@ export const login = async (values: z.infer<typeof LoginSchema>): Promise<Feedba
             message: "Invalid credentials."
         }
     }
+
+    /* EMAIL VERIFICATION */
 
     if (!userExists.emailVerified) {
         const { isNewToken, verificationToken: { token } } = await generateVerificationToken(userExists.email)
@@ -49,7 +56,79 @@ export const login = async (values: z.infer<typeof LoginSchema>): Promise<Feedba
 
         return {
             type: "warning",
-            message: "Please verify your e-mail inbox."
+            message: "Please verify link in your e-mail inbox."
+        }
+    }
+
+
+    /* TWO FACTOR AUTHENTICATION */
+
+    if (userExists.isTwoFactorEnabled) {
+        if (code) {
+            const twoFactorToken = await db.twoFactorToken.findFirst({
+                where: { email: email }
+            })
+
+            if (!twoFactorToken) {
+                return {
+                    type: "error",
+                    message: "Code is not available. Try login again."
+                }
+            }
+
+            const hasExpired = now.getTime() > new Date(twoFactorToken.expires_at).getTime()
+
+            if (hasExpired) {
+                return {
+                    type: "error",
+                    message: "Code has expired."
+                }
+            }
+
+            if (twoFactorToken.token !== code) {
+                return {
+                    type: "error",
+                    message: "Invalid code."
+                }
+            }
+
+            await db.twoFactorToken.delete({
+                where: { id: twoFactorToken.id }
+            })
+
+            const confirmationExists = await db.twoFactorConfirmation.findUnique({
+                where: { userId: userExists.id }
+            })
+
+            if (confirmationExists) {
+                await db.twoFactorConfirmation.delete({
+                    where: { id: confirmationExists.id }
+                })
+            }
+
+            await db.twoFactorConfirmation.create({
+                data: {
+                    userId: userExists.id
+                }
+            })
+        } else {
+            const { isNewToken, twoFactorToken: { token } } = await generateTwoFactorToken(userExists.email)
+
+            if (isNewToken) {
+                await sendTwoFactorTokenEmail(userExists.email, token)
+
+                return {
+                    twoFactor: true,
+                    type: "success",
+                    message: "Confirmation code e-mail sent."
+                }
+            }
+
+            return {
+                twoFactor: true,
+                type: "warning",
+                message: "Please verify code in your e-mail inbox."
+            }
         }
     }
 

@@ -28,6 +28,8 @@ export const LoginForm = () => {
     const searchParams = useSearchParams()
     const urlError = searchParams.get("error")
 
+    const [showTwoFactor, setShowTwoFactor] = useState(false)
+
     const [feedback, setFeedback] = useState<FeedbackParamsProps>({})
 
     const [isPending, startTransition] = useTransition()
@@ -51,13 +53,80 @@ export const LoginForm = () => {
 
     const onSubmit = (values: z.infer<typeof LoginSchema>) => {
         startTransition(async () => {
-            const { type, message } = await login(values)
-            setFeedback({
-                type,
-                message
-            })
+            const { type, message, twoFactor } = await login(values)
+            if (!twoFactor) {
+                setFeedback({
+                    type,
+                    message
+                })
+            } else {
+                setShowTwoFactor(true)
+            }
         })
     }
+
+    const loginFields = (
+        <>
+            <FormField
+                control={form.control}
+                name="email"
+                render={(({ field }) => (
+                    <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                            <Input
+                                disabled={isPending}
+                                {...field}
+                                placeholder="example@domain.com"
+                                type="email"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                ))}
+            />
+            <FormField
+                control={form.control}
+                name="password"
+                render={(({ field }) => (
+                    <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                            <Input
+                                disabled={isPending}
+                                {...field}
+                                type="password"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                ))}
+            />
+        </>
+    )
+
+    const twoFactorField = (
+        <FormField
+            control={form.control}
+            name="code"
+            render={(({ field }) => (
+                <FormItem>
+                    <FormLabel>Two Factor Code</FormLabel>
+                    <FormControl>
+                        <Input
+                            {...field}
+                            disabled={isPending}
+                            placeholder="Code"
+                        />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+            ))}
+        />
+    )
+
+
+
 
 
     return (
@@ -73,41 +142,11 @@ export const LoginForm = () => {
                     className="space-y-6"
                 >
                     <div className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={(({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isPending}
-                                            {...field}
-                                            placeholder="example@domain.com"
-                                            type="email"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            ))}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={(({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={isPending}
-                                            {...field}
-                                            type="password"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            ))}
-                        />
+                        {!showTwoFactor ?
+                            loginFields
+                            :
+                            twoFactorField
+                        }
                         <Button
                             size="sm"
                             variant="link"
@@ -129,7 +168,7 @@ export const LoginForm = () => {
                         type="submit"
                         className="w-full"
                     >
-                        Login
+                        {!showTwoFactor ? "Login" : "Confirm"}
                     </Button>
                 </form>
             </Form>

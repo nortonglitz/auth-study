@@ -38,6 +38,24 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
                     throw error
                 }
 
+                if (userExists.isTwoFactorEnabled) {
+                    const twoFactorConfirmation = await db.twoFactorConfirmation.findUnique({
+                        where: { userId: userExists.id }
+                    })
+
+                    if (!twoFactorConfirmation) {
+                        const error = new AuthError("2FA not confirmed.")
+                        error.name = "Credentials2FANotConfirmed"
+                        error.type = "AuthorizedCallbackError"
+
+                        throw error
+                    }
+
+                    await db.twoFactorConfirmation.delete({
+                        where: { id: twoFactorConfirmation.id }
+                    })
+                }
+
             }
 
             return true

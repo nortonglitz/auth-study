@@ -35,7 +35,6 @@ export const ResetForm = () => {
     })
 
     const onSubmit = (values: z.infer<typeof ResetSchema>) => {
-        console.log(values)
         startTransition(async () => {
             const { type, message } = await reset(values)
             setFeedback({

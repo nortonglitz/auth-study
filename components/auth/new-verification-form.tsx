@@ -1,22 +1,25 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 
 import { newVerification } from "@/actions/new-verification"
 import { CardWrapper } from "./card-wrapper"
 import { BeatLoader } from "react-spinners"
 import { FeedbackParamsProps, FormFeedback } from "../form-feedback"
 
+let tokenVerified = false
+
 export const NewVerificationForm = () => {
 
     const [feedback, setFeedback] = useState<FeedbackParamsProps>()
-    const router = useRouter()
 
     const searchParams = useSearchParams()
     const token = searchParams.get("token")
 
     const onSubmit = useCallback(async () => {
+        if (tokenVerified) return
+        tokenVerified = true
         if (!token) {
             setFeedback({
                 type: "error",
@@ -28,17 +31,14 @@ export const NewVerificationForm = () => {
         try {
             const { message, type } = await newVerification(token)
             setFeedback({ message, type })
-            if (type === "success") {
-                router.replace('/auth/login')
-            }
         } catch (err) {
             setFeedback({
                 type: "error",
                 message: "Something went wrong."
             })
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+
+    }, [token])
 
     useEffect(() => {
         onSubmit()
