@@ -4,15 +4,17 @@ import { db } from "@/lib/db"
 import { FeedbackParamsProps } from "@/components/form-feedback"
 
 export const newVerification = async (token: string): Promise<FeedbackParamsProps> => {
+
     const today = new Date()
-    const tokenExists = await db.verificationToken.findFirst({
+
+    const tokenExists = await db.verificationToken.findUnique({
         where: { token: token }
     })
 
     if (!tokenExists) {
         return {
             type: "error",
-            message: "Token does not exists"
+            message: "Token does not exists."
         }
     }
 
@@ -21,7 +23,7 @@ export const newVerification = async (token: string): Promise<FeedbackParamsProp
     if (hasExpired) {
         return {
             type: "error",
-            message: "Token has expired"
+            message: "Token has expired."
         }
     }
 

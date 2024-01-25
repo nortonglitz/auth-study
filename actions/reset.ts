@@ -34,10 +34,15 @@ export const reset = async (values: z.infer<typeof ResetSchema>): Promise<Feedba
 
     if (isNewToken) {
         await sendPasswordResetEmail(email, token)
+
+        return {
+            type: "success",
+            message: "Reset email sent."
+        }
     }
 
     return {
-        type: "success",
-        message: "Reset email sent."
+        type: "warning",
+        message: "Please verify your e-mail inbox."
     }
 }
