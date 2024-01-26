@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { Inter, Poppins } from "next/font/google"
 import { SessionProvider } from "next-auth/react"
 import "./globals.css";
-import { } from "next/font/google"
+import { Toaster } from "@/components/ui/sonner"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -35,6 +35,7 @@ export default async function RootLayout({
             ${poppins.variable} 
             bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-400 to-blue-800`}
         >
+          <Toaster />
           {children}
         </body>
       </html>
