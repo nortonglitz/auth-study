@@ -27,7 +27,7 @@ const Navbar = () => {
                     asChild
                     variant={pathname === "/server" ? "default" : "outline"}
                 >
-                    <Link href="#">
+                    <Link href="/server">
                         Server
                     </Link>
                 </Button>
@@ -35,7 +35,7 @@ const Navbar = () => {
                     asChild
                     variant={pathname === "/client" ? "default" : "outline"}
                 >
-                    <Link href="#">
+                    <Link href="/client">
                         Client
                     </Link>
                 </Button>
@@ -43,7 +43,7 @@ const Navbar = () => {
                     asChild
                     variant={pathname === "/admin" ? "default" : "outline"}
                 >
-                    <Link href="#">
+                    <Link href="/admin">
                         Admin
                     </Link>
                 </Button>
@@ -51,7 +51,7 @@ const Navbar = () => {
                     asChild
                     variant={pathname === "/settings" ? "default" : "outline"}
                 >
-                    <Link href="#">
+                    <Link href="/settings">
                         Settings
                     </Link>
                 </Button>

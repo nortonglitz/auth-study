@@ -61,9 +61,16 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             return true
         },
         async session({ session, token }: { session: Session, token?: JWT }) {
-            if (token && token.sub && session.user && token.role) {
+            if (token && session.user && token.sub) {
                 session.user.id = token.sub
+            }
+
+            if (token && session.user && token.role) {
                 session.user.role = token.role
+            }
+
+            if (token && session.user && ("isTwoFactorEnabled" in token)) {
+                session.user.isTwoFactorEnabled = token.isTwoFactorEnabled
             }
 
             return session
@@ -78,6 +85,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             if (!userExists) return token
 
             token.role = userExists.role
+            token.isTwoFactorEnabled = userExists.isTwoFactorEnabled
 
             return token
         }
