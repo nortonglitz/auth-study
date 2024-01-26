@@ -12,7 +12,7 @@ export const generateTwoFactorToken = async (email: string) => {
     const now = new Date()
     // You can use underscore to make easier to read the number
     const token = crypto.randomInt(100_000, 1_000_000).toString()
-    const expiresAt = new Date(now.getTime() + 3600 * 1000)
+    const expiresAt = new Date(now.getTime() + 5 * 1000)
 
     const tokenExists = await db.twoFactorToken.findFirst({
         where: { email: email }

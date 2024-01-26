@@ -1,12 +1,14 @@
-import { auth } from "@/auth"
+"use client"
 
-const SettingsPage = async () => {
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 
-    const session = await auth()
+const SettingsPage = () => {
+
+    const user = useCurrentUser()
 
     return (
-        <div>
-            {JSON.stringify(session)}
+        <div className="bg-white p-10 rounded-xl">
+            {JSON.stringify(user)}
         </div>
     )
 }
