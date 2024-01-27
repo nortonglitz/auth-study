@@ -4,6 +4,7 @@ import { DefaultSession } from "next-auth";
 type UserAddedProps = {
     role?: UserRole
     isTwoFactorEnabled: boolean
+    isOAuth: boolean
 }
 
 

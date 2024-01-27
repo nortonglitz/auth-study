@@ -61,16 +61,13 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             return true
         },
         async session({ session, token }: { session: Session, token?: JWT }) {
-            if (token && session.user && token.sub) {
+            if (token && session.user) {
                 session.user.id = token.sub
-            }
-
-            if (token && session.user && token.role) {
-                session.user.role = token.role
-            }
-
-            if (token && session.user && ("isTwoFactorEnabled" in token)) {
                 session.user.isTwoFactorEnabled = token.isTwoFactorEnabled
+                session.user.email = token.email
+                session.user.name = token.name
+                session.user.role = token.role
+                session.user.isOAuth = token.isOAuth
             }
 
             return session
@@ -84,8 +81,16 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
 
             if (!userExists) return token
 
+            const accountExists = await db.account.findFirst({
+                where: { id: userExists.id }
+            })
+
+            token.isOAuth = !!accountExists
             token.role = userExists.role
+            token.name = userExists.name
+            token.email = userExists.email
             token.isTwoFactorEnabled = userExists.isTwoFactorEnabled
+
 
             return token
         }

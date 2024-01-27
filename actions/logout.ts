@@ -3,6 +3,6 @@
 import { signOut } from "@/auth"
 
 export const logout = async () => {
-    // Do somo server stuff
+    // Do some server stuff
     await signOut()
 }
